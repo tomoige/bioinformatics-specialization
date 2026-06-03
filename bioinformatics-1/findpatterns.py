@@ -35,7 +35,6 @@ def frequency(text, k):
         if(value == max):
             finalString = finalString + key + " "
 
-    print(max)
     return (finalString.strip(), max)
         
 
@@ -78,3 +77,47 @@ findPattern(genome, pattern)
 
 with open("Vibrio_cholerae.txt") as f:
     findPattern(f.read(), "CTTGATCAT")
+
+## Question 6 finding kmer clumps in a text
+
+text = "CGGACTCGACAGATGTGAAGAACGACAATGTGAAGACTCGACACGACAGAGTGAAGAGAAGAGGAAACATTGTAA"
+
+## take in text, kmer size, length of window, amount of kmers to be in a window for it to count as a clump
+
+def frequency(text, k):
+    dictionary = {}
+    max = 0;
+    finalString = "";
+    for i in range(len(text) - k):
+        key = text[i:i+k]
+        if key in dictionary:
+            dictionary[key] = dictionary[key] + 1
+        else:
+            dictionary[key] = 1
+    
+        if dictionary[key] > max:
+            max = dictionary[key]
+
+    for key, value in dictionary.items():
+        if(value == max):
+            finalString = finalString + key + " "
+
+    return (finalString.strip(), max)
+
+def findClumps(text, k, l, t):
+    mySet = set()
+    for i in range(len(text) - l):
+        calcFreq = frequency(text[i:i+l], k)
+        if calcFreq[1] >= t:
+            mySet.add(str(calcFreq[0]))
+    string = ""
+    for i in mySet:
+        string = string + i + " "
+    return string
+
+with open("dataset.txt") as f:
+    print(findClumps(f.read(), 10, 100, 4))
+
+with open("E_coli.txt") as f:
+    print("searching e coli")
+    print(findClumps(f.read(), 9, 500, 3))
