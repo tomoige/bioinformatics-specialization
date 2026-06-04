@@ -84,26 +84,6 @@ text = "CGGACTCGACAGATGTGAAGAACGACAATGTGAAGACTCGACACGACAGAGTGAAGAGAAGAGGAAACATTG
 
 ## take in text, kmer size, length of window, amount of kmers to be in a window for it to count as a clump
 
-def frequency(text, k):
-    dictionary = {}
-    max = 0;
-    finalString = "";
-    for i in range(len(text) - k):
-        key = text[i:i+k]
-        if key in dictionary:
-            dictionary[key] = dictionary[key] + 1
-        else:
-            dictionary[key] = 1
-    
-        if dictionary[key] > max:
-            max = dictionary[key]
-
-    for key, value in dictionary.items():
-        if(value == max):
-            finalString = finalString + key + " "
-
-    return (finalString.strip(), max)
-
 def findClumps(text, k, l, t):
     mySet = set()
     for i in range(len(text) - l):
@@ -118,6 +98,44 @@ def findClumps(text, k, l, t):
 with open("dataset.txt") as f:
     print(findClumps(f.read(), 10, 100, 4))
 
+## find clumps in e coli
+
+def frequency(text, k):
+    dictionary = {}
+    for i in range(len(text) - k + 1):
+        key = text[i:i+k]
+        if key in dictionary:
+            dictionary[key] = dictionary[key] + 1
+        else:
+            dictionary[key] = 1
+
+    return dictionary
+
+def findClumps(text, k, l, t):
+    mySet = set()
+    dictionary = frequency(text[:l], k)
+    firstRun = True
+    for i in range(len(text) - l):
+        if not firstRun:
+            ## add the new kmer entering
+            entering = text[i+l-k:i+l]
+            if(entering in dictionary):
+                dictionary[entering] = dictionary[entering] + 1
+                if dictionary[entering] >= t:
+                    mySet.add(entering)
+            else:
+                dictionary[entering] = 1
+
+        ## remove the kmer leaving
+        dictionary[text[i:i+k]] = dictionary[text[i:i+k]] - 1
+        firstRun = False;
+
+    string = ""
+    for i in mySet:
+        string = string + i + " "
+    return string
+
+
 with open("E_coli.txt") as f:
     print("searching e coli")
-    print(findClumps(f.read(), 9, 500, 3))
+    print(len(findClumps(f.read(), 9, 500, 3).split()))
