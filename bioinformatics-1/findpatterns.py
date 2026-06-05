@@ -76,6 +76,7 @@ findPattern(genome, pattern)
 ## Question 5
 
 with open("Vibrio_cholerae.txt") as f:
+    print("Answer:")
     findPattern(f.read(), "CTTGATCAT")
 
 ## Question 6 finding kmer clumps in a text
