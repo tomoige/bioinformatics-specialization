@@ -151,73 +151,81 @@ print(frequentWordsWithMismatch(text, 6, 2))
 
 print(generateNeighbours("AAAAA", 1))
 
-with open("week2-5.txt") as f:
-    myList = f.read().strip().splitlines()
-    text = myList[0]
-    k = int(myList[1])
-    d = int(myList[2])
-    res = frequentWordsWithMismatch(text, k, d)
-    print(res[0], res[1])
+# with open("week2-5.txt") as f:
+#     myList = f.read().strip().splitlines()
+#     text = myList[0]
+#     k = int(myList[1])
+#     d = int(myList[2])
+#     res = frequentWordsWithMismatch(text, k, d)
+#     print(res[0], res[1])
 
-## now count the reverse aswell
-def reverseComplement(text):
-    mapping = {"A":"T", "T":"A", "C":"G", "G":"C"}
-    text = text[::-1]
-    newStr = ""
-    for i in range(len(text)):
-        newStr = newStr + mapping[text[i]]
-    return newStr
-
-
-def frequentWordsWithMismatch(text, k, d):
-    myMap = {}
-    max = 0
-    string = ""
-    for i in range(len(text) - k + 1):
-        word = text[i:i+k]
-        neighbours = generateNeighbours(word, d)
-        for j in neighbours:
-            count = approximatePatternCount(text, j, d)
-            count = count + approximatePatternCount(reverseComplement(text), j,d)
-            myMap[j] = count
-            if count > max:
-                max = count
-    for (key,value) in myMap.items():
-        if value == max:
-            string = string + key + " "
-    print(myMap)
-    return (string, max)
-
-# ## should print ATGT ACAT
-# print(frequentWordsWithMismatch("ACGTTGCATGTCGCATGATGCATGAGAGCT", 4, 1)[0])
+# ## now count the reverse aswell
+# def reverseComplement(text):
+#     mapping = {"A":"T", "T":"A", "C":"G", "G":"C"}
+#     text = text[::-1]
+#     newStr = ""
+#     for i in range(len(text)):
+#         newStr = newStr + mapping[text[i]]
+#     return newStr
 
 
-with open("week2-6.txt") as f:
-    myList = f.read().strip().splitlines()
-    text = myList[0]
-    k = int(myList[1])
-    d = int(myList[2])
-    res = frequentWordsWithMismatch(text, k, d)
-    print(res[0], res[1])
+# def frequentWordsWithMismatch(text, k, d):
+#     myMap = {}
+#     max = 0
+#     string = ""
+#     for i in range(len(text) - k + 1):
+#         word = text[i:i+k]
+#         neighbours = generateNeighbours(word, d)
+#         for j in neighbours:
+#             count = approximatePatternCount(text, j, d)
+#             count = count + approximatePatternCount(reverseComplement(text), j,d)
+#             myMap[j] = count
+#             if count > max:
+#                 max = count
+#     for (key,value) in myMap.items():
+#         if value == max:
+#             string = string + key + " "
+#     print(myMap)
+#     return (string, max)
 
-## finding a DnaA box in Salmonella enterica
+# # ## should print ATGT ACAT
+# # print(frequentWordsWithMismatch("ACGTTGCATGTCGCATGATGCATGAGAGCT", 4, 1)[0])
 
-with open("Salmonella_enterica.txt") as f:
-    text = f.read().replace("\n","")
-    findMinimum(text)
-    # minimum is found as 3764856 3754858
-    # I will use a window on each side of 3764857 of 250
-    left = 3764857 - 250
-    right = 3764857 + 250
-    ori = text[left:right]
-    print("possible ori: " + ori)
 
-    print(frequentWordsWithMismatch(ori, 9, 1))
+# with open("week2-6.txt") as f:
+#     myList = f.read().strip().splitlines()
+#     text = myList[0]
+#     k = int(myList[1])
+#     d = int(myList[2])
+#     res = frequentWordsWithMismatch(text, k, d)
+#     print(res[0], res[1])
 
-## neighbours question at the end
-neighbours = generateNeighbours("GGTGATCGTAC", 3)
-string = ""
-neighbours.remove("GGTGATCGTAC")   
-for i in neighbours:
-    string += i + " "
-print(string)
+# ## finding a DnaA box in Salmonella enterica
+
+# with open("Salmonella_enterica.txt") as f:
+#     text = f.read().replace("\n","")
+#     findMinimum(text)
+#     # minimum is found as 3764856 3754858
+#     # I will use a window on each side of 3764857 of 250
+#     left = 3764857 - 250
+#     right = 3764857 + 250
+#     ori = text[left:right]
+#     print("possible ori: " + ori)
+
+#     print(frequentWordsWithMismatch(ori, 9, 1))
+
+# ## neighbours question at the end
+# neighbours = generateNeighbours("GGTGATCGTAC", 3)
+# string = ""
+# neighbours.remove("GGTGATCGTAC")   
+# for i in neighbours:
+#     string += i + " "
+# print(string)
+
+## quiz questions
+print(hammingDistance("CTACAGCAATACGATCATATGCGGATCCGCAGTGGCCGGTAGACACACGT","CTACCCCGCTGCTCAATGACCGGGACTAAAGAGGCGAAGATTATGGTGTG"))
+
+findMinimum("CATTCCAGTACTTCGATGATGGCGTGAAGA")
+
+print(approximatePatternCount("CATGCCATTCGCATTGTCCCAGTGA", "CCC", 2))
+print(len(generateNeighbours("CCAGTCAATG", 1)))
