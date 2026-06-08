@@ -151,15 +151,15 @@ print(frequentWordsWithMismatch(text, 6, 2))
 
 print(generateNeighbours("AAAAA", 1))
 
-# with open("week2-5.txt") as f:
-#     myList = f.read().strip().splitlines()
-#     text = myList[0]
-#     k = int(myList[1])
-#     d = int(myList[2])
-#     res = frequentWordsWithMismatch(text, k, d)
-#     print(res[0], res[1])
+with open("week2-5.txt") as f:
+    myList = f.read().strip().splitlines()
+    text = myList[0]
+    k = int(myList[1])
+    d = int(myList[2])
+    res = frequentWordsWithMismatch(text, k, d)
+    print(res[0], res[1])
 
-# ## now count the reverse aswell
+## now count the reverse aswell
 def reverseComplement(text):
     mapping = {"A":"T", "T":"A", "C":"G", "G":"C"}
     text = text[::-1]
@@ -213,3 +213,11 @@ with open("Salmonella_enterica.txt") as f:
     print("possible ori: " + ori)
 
     print(frequentWordsWithMismatch(ori, 9, 1))
+
+## neighbours question at the end
+neighbours = generateNeighbours("GGTGATCGTAC", 3)
+string = ""
+neighbours.remove("GGTGATCGTAC")   
+for i in neighbours:
+    string += i + " "
+print(string)
