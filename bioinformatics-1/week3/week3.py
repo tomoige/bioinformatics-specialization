@@ -1,3 +1,5 @@
+import math
+
 k = 3 
 d= 1
 strings = ["ATTTGGC", "TGCCTTA", "CGGTATC", "GAAAATT"]
@@ -81,3 +83,58 @@ with open("week3-1.txt") as f:
         string += i + " "
     print(string) 
 
+## computing entropy in a motif matrix
+## -(pi log_2(pi) + pi+1 log_2(pi+1)...)
+
+matrix = ["TCGGGGGTTTTT",
+"CCGGTGACTTAC",
+"ACGGGGATTTTC",
+"TTGGGGACTTTT",
+"AAGGGGACTTCC",
+"TTGGGGACTTCC",
+"TCGGGGATTCAT",
+"TCGGGGATTCCT",
+"TAGGGGAACTAC",
+"TCGGGTATAACC"]
+
+def computeEntropy(matrix):
+    profile = {
+        "A":[],
+        "T":[],
+        "C":[],
+        "G":[]
+    }
+
+    for col in range(len(matrix[0])):
+        a = 0
+        t = 0
+        c = 0
+        g = 0
+        for row in matrix:
+            if row[col] == "A": a += 1
+            if row[col] == "T": t+= 1
+            if row[col] == "C": c+= 1
+            if row[col] == "G": g+= 1
+        profile["A"].append(a/len(matrix))
+        profile["T"].append(t/len(matrix))
+        profile["C"].append(c/len(matrix))
+        profile["G"].append(g/len(matrix))
+
+    ## calculate entropy
+    ## calculated per column
+    ## -(pi log_2(pi) + pi+1 log_2(pi+1)...)
+    total_entropy_per_col = []
+    for col in range(len(matrix[0])):
+        total = 0
+        if(profile["A"][col] != 0):
+            total += profile["A"][col]*math.log2(profile["A"][col])
+        if(profile["T"][col] != 0):
+            total += profile["T"][col]*math.log2(profile["T"][col])
+        if(profile["C"][col] != 0):
+            total += profile["C"][col]*math.log2(profile["C"][col])
+        if(profile["G"][col] != 0):
+            total += profile["G"][col]*math.log2(profile["G"][col])
+        total_entropy_per_col.append(-total)
+    return(sum(total_entropy_per_col))
+
+print(computeEntropy(matrix))
