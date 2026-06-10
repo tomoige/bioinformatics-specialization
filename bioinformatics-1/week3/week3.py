@@ -6,6 +6,7 @@ strings = ["ATTTGGC", "TGCCTTA", "CGGTATC", "GAAAATT"]
 
 ## generate neighbours from week 2
 
+
 def generateNeighbours(pattern, d):
     neighbours = set()
     characters = ["A", "C", "T", "G"]
@@ -138,3 +139,86 @@ def computeEntropy(matrix):
     return(sum(total_entropy_per_col))
 
 print(computeEntropy(matrix))
+
+dna = [
+    "TTACCTTAAC",
+    "GATATCTGTC",
+    "ACGGCGTTCG",
+    "CCCTAAAGAG",
+    "CGTCAGAGGT"
+]
+
+pattern = "AAA"
+
+def motifs(pattern, dna):
+    """Returns the motifs minimizing score for a pattern"""
+    k = len(pattern)
+    motifs = []
+    score = 0
+    for string in dna:
+        mindist = k
+        closest_pattern = ""
+        for i in range(len(string) - k + 1):
+            checking = string[i:i+k]
+            dist = hammingDistance(checking, pattern)
+            if dist <= mindist:
+                mindist = dist
+                closest_pattern = checking
+        score += mindist
+        motifs.append(closest_pattern)
+    
+    return motifs, score
+
+print(motifs(pattern, dna))
+
+## creating a set of kmers of length k
+
+kmers = set()
+
+def generate_kmers(k, initial_kmer, i):
+    """generates all kmers of length k"""
+    if(i > k):
+        return
+    kmers.add(initial_kmer)
+    ## places an A in
+    new_kmer = initial_kmer[:i] + "A" + initial_kmer[i+1:]
+    generate_kmers(k, new_kmer, i+1)
+    ## places an T in
+    new_kmer = initial_kmer[:i] + "T" + initial_kmer[i+1:]
+    generate_kmers(k, new_kmer, i+1)
+    ## places an C in
+    new_kmer = initial_kmer[:i] + "C" + initial_kmer[i+1:]
+    generate_kmers(k, new_kmer, i+1)
+    ## places an G in
+    new_kmer = initial_kmer[:i] + "G" + initial_kmer[i+1:]
+    generate_kmers(k, new_kmer, i+1)
+
+## now finding the median string
+dna = [
+    "AAATTGACGCAT",
+    "GACGACCACGTT",
+    "CGTCAGCGCCTG",
+    "GCTGAGCACCGG",
+    "AGTTCGGGACAG"
+]
+
+def median_string(dna, k):
+    generate_kmers(k, "A"*k, 0)
+    lowest_score = k*len(dna)
+    closest_pattern = "A"*k
+    for pattern in kmers:
+        motifs_score = motifs(pattern, dna)
+        if motifs_score[1] < lowest_score:
+            # print("testing: " + pattern)
+            # print(motifs_score)
+            lowest_score = motifs_score[1]
+            closest_pattern = pattern
+    return closest_pattern
+
+print(median_string(dna, 3))
+
+with open("week3-2.txt") as f:
+    lines = f.read().strip().splitlines()
+    k = int(lines[0])
+    dna = lines[1].splitlines()
+    print(median_string(dna,k))
