@@ -222,3 +222,87 @@ with open("week3-2.txt") as f:
     k = int(lines[0])
     dna = lines[1].splitlines()
     print(median_string(dna,k))
+
+## compute probability of a pattern given a profile
+matrix = ["TCGGGGGTTTTT",
+"CCGGTGACTTAC",
+"ACGGGGATTTTC",
+"TTGGGGACTTTT",
+"AAGGGGACTTCC",
+"TTGGGGACTTCC",
+"TCGGGGATTCAT",
+"TCGGGGATTCCT",
+"TAGGGGAACTAC",
+"TCGGGTATAACC"]
+
+def compute_profile(dna):
+    profile = {
+        "A":[],
+        "T":[],
+        "C":[],
+        "G":[]
+    }
+
+    for col in range(len(matrix[0])):
+        a = 0
+        t = 0
+        c = 0
+        g = 0
+        for row in matrix:
+            if row[col] == "A": a += 1
+            if row[col] == "T": t+= 1
+            if row[col] == "C": c+= 1
+            if row[col] == "G": g+= 1
+        profile["A"].append(a/len(matrix))
+        profile["T"].append(t/len(matrix))
+        profile["C"].append(c/len(matrix))
+        profile["G"].append(g/len(matrix))
+    
+    return profile
+
+print(compute_profile(matrix))
+
+
+def compute_probability(pattern, profile):
+    probability = 1
+    for i in range(len(pattern)):
+        probability = probability * float(profile[pattern[i]][i])
+    return probability
+
+print(compute_probability("TCGTGGATTTCC", compute_profile(matrix)))
+
+## profile most probable k-mer problem
+
+def profile_most_probable_kmer(text, k, profile):
+    highest_probability = 0
+    highest_probability_pattern = ""
+    for i in range(len(text) - k + 1):
+        pattern = text[i:i+k]
+        probability = compute_probability(pattern, profile)
+        if probability > highest_probability:
+            highest_probability = probability
+            highest_probability_pattern = pattern
+    return highest_probability_pattern
+
+text = "ACCTGTTTATTGCCTAAGTTCCGAACAAACCCAATATAGCCCGAGGGCCT"
+k = 5
+profile = {
+    "A": [0.2, 0.2, 0.3, 0.2, 0.3],
+    "C": [0.4, 0.3, 0.1, 0.5, 0.1],
+    "G": [0.3, 0.3, 0.5, 0.2, 0.4],
+    "T": [0.1, 0.2, 0.1, 0.1, 0.2]
+}
+
+print(profile_most_probable_kmer(text, k, profile))
+
+with open("week3-3.txt") as f:
+    lines = f.read().strip().splitlines()
+    text = lines[0]
+    k = int(lines[1])
+    profile = {
+        "A": lines[2].split(" "),
+        "C": lines[3].split(" "),
+        "G": lines[4].split(" "),
+        "T": lines[5].split(" ")
+    }
+    print(profile_most_probable_kmer(text, k, profile))
