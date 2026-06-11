@@ -235,28 +235,40 @@ matrix = ["TCGGGGGTTTTT",
 "TAGGGGAACTAC",
 "TCGGGTATAACC"]
 
-def compute_profile(dna):
+def compute_profile(dna, pseudocounts=False):
+    k = len(dna[0])
+    ## pseudocounts makes sure there's at least 1 in each row so it never equals 0
+    if pseudocounts:
+        profile = {nucleotide: [1] * k for nucleotide in "ACGT"}
+        for row in dna:
+            for col, nucleotide in enumerate(row):
+                profile[nucleotide][col] += 1
+        total = len(dna) + 4
+        for nucleotide in profile:
+            profile[nucleotide] = [count / total for count in profile[nucleotide]]
+        return profile
+
     profile = {
         "A":[],
-        "T":[],
         "C":[],
-        "G":[]
+        "G":[],
+        "T":[]
     }
 
-    for col in range(len(matrix[0])):
+    for col in range(len(dna[0])):
         a = 0
         t = 0
         c = 0
         g = 0
-        for row in matrix:
+        for row in dna:
             if row[col] == "A": a += 1
             if row[col] == "T": t+= 1
             if row[col] == "C": c+= 1
             if row[col] == "G": g+= 1
-        profile["A"].append(a/len(matrix))
-        profile["T"].append(t/len(matrix))
-        profile["C"].append(c/len(matrix))
-        profile["G"].append(g/len(matrix))
+        profile["A"].append(a/len(dna))
+        profile["T"].append(t/len(dna))
+        profile["C"].append(c/len(dna))
+        profile["G"].append(g/len(dna))
     
     return profile
 
@@ -306,3 +318,157 @@ with open("week3-3.txt") as f:
         "T": lines[5].split(" ")
     }
     print(profile_most_probable_kmer(text, k, profile))
+
+    ## greedy motif search
+
+def get_consensus_string(y):
+    x = compute_profile(y)
+    ## check the highest probability in each column
+    ## columns
+    consensus_string = ""
+    for i in range(len(x["A"])):
+        ## rows
+        max_prob = 0.0
+        max_char = "A"
+        for key, value in x.items():
+            if value[i] > max_prob:
+                max_prob = value[i]
+                max_char = key
+        consensus_string += max_char
+    return consensus_string
+
+def get_score(motifs, consensus_string):
+    score = 0
+    for string in motifs:
+        for i in range(len(string)):
+            if string[i] != consensus_string[i]:
+                score += 1
+    return score
+
+
+def greedy_motif_search(k, t, dna):
+## form best motifs matrix with first motif in string
+    best_motif_matrix = []
+    
+    for i in range(len(dna)):
+        best_motif_matrix.append(dna[i][0:k])
+    ## score the best matrix
+    best_consensus = get_consensus_string(best_motif_matrix)
+    best_score = get_score(best_motif_matrix, best_consensus)
+
+    ## for each kmer in the first dna string
+    for i in range(len(dna[0]) - k + 1):
+        motif = dna[0][i:i+k]
+        current_motif_matrix = [motif]
+        profile = compute_profile(current_motif_matrix, pseudocounts=True)
+        ## find the most probable kmer in the successive dna strings, updating profile each time
+        for j in range(1, t):
+            most_probable = profile_most_probable_kmer(dna[j], k, profile)
+            current_motif_matrix.append(most_probable)
+            profile = compute_profile(current_motif_matrix, pseudocounts=True)
+        consensus = get_consensus_string(current_motif_matrix)
+        score = get_score(current_motif_matrix, consensus)
+        if score < best_score:
+            best_score = score
+            best_motif_matrix = current_motif_matrix
+
+    return best_motif_matrix
+
+newdna = [
+    "GGCGTTCAGGCA", "AAGAATCAGTCA", "CAAGGAGTTCGC", "CACGTCAATCAC", "CAATAATATTCG"
+]
+
+# print(get_score(newdna, get_consensus_string(newdna)))
+
+# print(greedy_motif_search(3, 5, newdna))
+
+# with open("week3-4.txt") as f:
+#     lines = f.read().strip().splitlines()
+#     k, t = map(int, lines[0].split())
+#     dna = []
+#     for line in lines[1:]:
+#         dna.extend(line.split())
+#     res = greedy_motif_search(k, t, dna)
+#     print("\n".join(res))
+
+
+## Coursera / Cogniterra workflow (paste space-separated DNA from the challenge)
+
+def coursera_profile_most_probable_kmer(text, k, profile):
+    max_probability = -1.0
+    most_probable_kmer = ""
+    for i in range(len(text) - k + 1):
+        kmer = text[i : i + k]
+        probability = 1.0
+        for j, nucleotide in enumerate(kmer):
+            probability *= profile[nucleotide][j]
+        if probability > max_probability:
+            max_probability = probability
+            most_probable_kmer = kmer
+    return most_probable_kmer
+
+
+def coursera_form_profile(motifs, pseudocounts=True):
+    k = len(motifs[0])
+    t = len(motifs)
+    if pseudocounts:
+        profile = {nucleotide: [1] * k for nucleotide in "ACGT"}
+        for motif in motifs:
+            for i, nucleotide in enumerate(motif):
+                profile[nucleotide][i] += 1
+        for nucleotide in profile:
+            profile[nucleotide] = [count / (t + 4) for count in profile[nucleotide]]
+        return profile
+
+    profile = {nucleotide: [0] * k for nucleotide in "ACGT"}
+    for i in range(k):
+        column = [motif[i] for motif in motifs]
+        for nucleotide in "ACGT":
+            profile[nucleotide][i] = column.count(nucleotide) / t
+    return profile
+
+
+def coursera_score_motifs(motifs):
+    k = len(motifs[0])
+    t = len(motifs)
+    score = 0
+    for i in range(k):
+        column = [motif[i] for motif in motifs]
+        max_count = max(column.count(nucleotide) for nucleotide in "ACGT")
+        score += t - max_count
+    return score
+
+
+USE_PSEUDOCOUNTS = False  # False = "Greedy Motif Search", True = "...with Pseudocounts"
+
+
+def coursera_greedy_motif_search(dna, k, t, pseudocounts=USE_PSEUDOCOUNTS):
+    best_motifs = [seq[:k] for seq in dna]
+    for i in range(len(dna[0]) - k + 1):
+        motifs = [dna[0][i : i + k]]
+        for j in range(1, t):
+            profile = coursera_form_profile(motifs, pseudocounts)
+            motifs.append(coursera_profile_most_probable_kmer(dna[j], k, profile))
+        if coursera_score_motifs(motifs) < coursera_score_motifs(best_motifs):
+            best_motifs = motifs
+    return best_motifs
+
+
+def dna_from_space_separated(text):
+    return text.split()
+
+
+def dna_to_python_list_string(text):
+    """Helper from Coursera comments: space-separated text -> '"SEQ1", "SEQ2", ...'"""
+    return " ".join('"' + word + '",' for word in text.split())
+
+
+with open("week3-4.txt") as f:
+    lines = f.read().strip().splitlines()
+    k, t = map(int, lines[0].split())
+    string_original = " ".join(lines[1:])
+    Dna = dna_from_space_separated(string_original)
+
+print(f"k={k}, t={t}, sequences={len(Dna)}, pseudocounts={USE_PSEUDOCOUNTS}")
+best_motifs = coursera_greedy_motif_search(Dna, k, t)
+print(" ".join(best_motifs))
