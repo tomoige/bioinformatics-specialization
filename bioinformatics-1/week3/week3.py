@@ -6,7 +6,6 @@ strings = ["ATTTGGC", "TGCCTTA", "CGGTATC", "GAAAATT"]
 
 ## generate neighbours from week 2
 
-
 def generateNeighbours(pattern, d):
     neighbours = set()
     characters = ["A", "C", "T", "G"]
@@ -390,3 +389,39 @@ with open("week3-4.txt") as f:
     dna = " ".join(lines[1:]).split()
 
 print(" ".join(greedy_motif_search(k, t, dna, pseudocounts=USE_PSEUDOCOUNTS)))
+
+print(" ".join(greedy_motif_search(3, 5, newdna, True)))
+
+with open("week3-5.txt") as f:
+    lines = f.read().strip().splitlines()
+    k, t = map(int, lines[0].split())
+    dna = " ".join(lines[1:]).split()
+
+print(" ".join(greedy_motif_search(k, t, dna, pseudocounts=True)))
+
+def distance_between_pattern_and_string(pattern, dna):
+    k = len(pattern)
+    distance = 0
+    for string in dna:
+        hamming_distance = k*len(dna)
+        for i in range(len(string) - k + 1):
+            cur_pattern = string[i:i+k]
+            cur_hamming_distance = hammingDistance(pattern, cur_pattern)
+            if hamming_distance > cur_hamming_distance:
+                hamming_distance = cur_hamming_distance
+        distance = distance + hamming_distance
+    return distance
+
+pattern = "AAA"
+dna = ["TTACCTTAAC", "GATATCTGTC", "ACGGCGTTCG", "CCCTAAAGAG", "CGTCAGAGGT"]
+
+print(distance_between_pattern_and_string(pattern, dna))
+
+with open("week3-6.txt") as f:
+    lines = f.read().strip().splitlines()
+    pattern = lines[0]
+    dna = lines[1].split(" ")
+    print(distance_between_pattern_and_string(pattern, dna))
+
+
+
