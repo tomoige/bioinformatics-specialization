@@ -423,5 +423,39 @@ with open("week3-6.txt") as f:
     dna = lines[1].split(" ")
     print(distance_between_pattern_and_string(pattern, dna))
 
+def median_string(dna, k):
+    generate_kmers(k, "A"*k, 0)
+    lowest_score = k*len(dna)
+    closest_pattern = "A"*k
+    closest_patterns = [closest_pattern]
+    for pattern in kmers:
+        motifs_score = motifs(pattern, dna)
+        if motifs_score[1] < lowest_score:
+            # print("testing: " + pattern)
+            # print(motifs_score)
+            lowest_score = motifs_score[1]
+            closest_pattern = pattern
+            closest_patterns = [closest_pattern]
+        if motifs_score[1] == lowest_score:
+            closest_patterns.append(pattern)
+    return closest_patterns
 
+dna = [
+    "CTCGATGAGTAGGAAAGTAGTTTCACTGGGCGAACCACCCCGGCGCTAATCCTAGTGCCC","GCAATCCTACCCGAGGCCACATATCAGTAGGAACTAGAACCACCACGGGTGGCTAGTTTC","GGTGTTGAACCACGGGGTTAGTTTCATCTATTGTAGGAATCGGCTTCAAATCCTACACAG",
+]
 
+kmers = set()
+
+print("median string: ")
+print(" ".join(median_string(dna, 7)))
+
+profile = {
+    "A":[0.4, 0.3, 0.0, 0.1, 0.0, 0.9],
+    "C": [0.2, 0.3, 0.0, 0.4, 0.0, 0.1],
+    "G": [0.1, 0.3, 1.0, 0.1, 0.5, 0.0],
+    "T": [0.3, 0.1, 0.0, 0.4, 0.5, 0.0]
+}
+
+pattern = "AAGTTC"
+
+print(compute_probability(pattern, profile))

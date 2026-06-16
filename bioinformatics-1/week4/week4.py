@@ -101,43 +101,45 @@ k = 8
 t = 5
 dna = ["CGCCCCTCTCGGGGGTGTTCAGTAAACGGCCA", "GGGCGAGGTATGTGTAAGTGCCAAGGTGCCAG", "TAGTACCGAGACCGAAAGAAGTATACAGGCGT", "TAGATCAAGTTTCAGGTGCACGTCGGTGAACC","AATCCACCAGCTCCACGTGCAATGTTGGCCTA"]
 
-# best_motifs, score_best_motifs = randomized_motif_search(dna, k, t)
+def run_randomized_motif_search(dna, k, t, iterations):
+    best_motifs, score_best_motifs = randomized_motif_search(dna, k, t)
 
-# for i in range(10000):
-#     if(i % 10 == 0):
-#         print("Iteration: ", i+1)
-#     cur_motifs, cur_score = randomized_motif_search(dna, k, t)
-#     print(cur_score, score_best_motifs)
-#     if cur_score < score_best_motifs:
-#         best_motifs = cur_motifs
-#         score_best_motifs = cur_score
+    for i in range(iterations):
+        if(i % 10 == 0):
+            print("Iteration: ", i+1)
+        cur_motifs, cur_score = randomized_motif_search(dna, k, t)
+        print(cur_score, score_best_motifs)
+        if cur_score < score_best_motifs:
+            best_motifs = cur_motifs
+            score_best_motifs = cur_score
 
-# print("Best motifs are: ", " ".join(best_motifs), " with a score of: ", score_best_motifs)
+    print("Best motifs are: ", " ".join(best_motifs), " with a score of: ", score_best_motifs)
 
-# with open("week4-1.txt") as f:
-#     lines = f.read().strip().splitlines()
-#     k = int(lines[0].split(" ")[0])
-#     t = int(lines[0].split(" ")[1])
-#     dna = lines[1].split(" ")
+with open("week4-1.txt") as f:
+    lines = f.read().strip().splitlines()
+    k = int(lines[0].split(" ")[0])
+    t = int(lines[0].split(" ")[1])
+    dna = lines[1].split(" ")
 
-#     best_motifs, score_best_motifs = randomized_motif_search(dna, k, t)
+    # run_randomized_motif_search(dna, k, t, 2000)
+    # best_motifs, score_best_motifs = randomized_motif_search(dna, k, t)
 
-#     for j in range(100):
-#         loops_without_change = 0
-#         for i in range(1000):
-#             if(i % 50 == 0):
-#                 print("Iteration: ", j, i+1)
-#                 print(score_best_motifs)
-#             cur_motifs, cur_score = randomized_motif_search(dna, k, t)
-#             if cur_score < score_best_motifs:
-#                 best_motifs = cur_motifs
-#                 score_best_motifs = cur_score
-#                 loops_without_change = 0
-#             else:
-#                 loops_without_change += 1
+    # for j in range(100):
+    #     loops_without_change = 0
+    #     for i in range(1000):
+    #         if(i % 50 == 0):
+    #             print("Iteration: ", j, i+1)
+    #             print(score_best_motifs)
+    #         cur_motifs, cur_score = randomized_motif_search(dna, k, t)
+    #         if cur_score < score_best_motifs:
+    #             best_motifs = cur_motifs
+    #             score_best_motifs = cur_score
+    #             loops_without_change = 0
+    #         else:
+    #             loops_without_change += 1
         
-#         print("Best motifs are: ", " ".join(best_motifs))
-#     print("Best motifs are: ", " ".join(best_motifs), " with a score of: ", score_best_motifs)
+    #     print("Best motifs are: ", " ".join(best_motifs))
+    # print("Best motifs are: ", " ".join(best_motifs), " with a score of: ", score_best_motifs)
 
 def pick_random(probabilities):
     sum_probs = sum(probabilities)
@@ -201,16 +203,16 @@ def compute_profile(dna, pseudocounts=False):
     
     return profile
 
-def compute_probability(pattern, profile):
-    probability = 1
-    for i in range(len(pattern)):
-        probability = probability * float(profile[pattern[i]][i])
-    return probability
+# def compute_probability(pattern, profile):
+#     probability = 1
+#     for i in range(len(pattern)):
+#         probability = probability * float(profile[pattern[i]][i])
+#     return probability
 
 def profile_randomly_generated_kmer(string, k, profile):
     probabilities = []
     for i in range(len(string) - k + 1):
-        probabilities.append(compute_probability(string[i:i+k], profile))
+        probabilities.append(compute_probability(profile, string[i:i+k]))
     index = pick_random(probabilities)
     return string[index:index+k]
 
@@ -233,17 +235,43 @@ def gibbs_sampler(dna, k, t, N):
             best_score = score
     return best_motifs, score
 
-dna = ["TTACCTTAAC", "GATGTCTGTC", "CCGGCGTTAG", "CACTAACGAG", "CGTCAGAGGT"]
-best_motifs, best_score = gibbs_sampler(dna, 4, 5, 200)
+dna = [
+    "CGCCCCTCTCGGGGGTGTTCAGTAAACGGCCA", "GGGCGAGGTATGTGTAAGTGCCAAGGTGCCAG", "TAGTACCGAGACCGAAAGAAGTATACAGGCGT", "TAGATCAAGTTTCAGGTGCACGTCGGTGAACC", "AATCCACCAGCTCCACGTGCAATGTTGGCCTA"
+]
+k = 8
+t = 5
+best_motifs, best_score = gibbs_sampler(dna, k, t, 200)
 for i in range(500):
     if(i%10 == 0):
         print(i, "/", 500)
-    motifs, score = gibbs_sampler(dna, 4, 5, 200)
+    motifs, score = gibbs_sampler(dna, k, t, 200)
     if score < best_score:
         best_score = score
         best_motifs = motifs
 
-print(best_motifs, best_score)
+print(" ".join(best_motifs), best_score)
     
+# with open("week4-2.txt") as f:
+#     lines = f.read().strip().splitlines()
+#     k = int(lines[0].split(" ")[0])
+#     t = int(lines[0].split(" ")[1])
+#     iterations = int(lines[0].split(" ")[2])
+#     dna = lines[1].split(" ")
 
-    
+#     best_motifs, best_score = gibbs_sampler(dna, k, t, 200)
+#     for i in range(500):
+#         if(i%10 == 0):
+#             print(i, "/", iterations)
+#         motifs, score = gibbs_sampler(dna, k, t, 200)
+#         if score < best_score:
+#             best_score = score
+#             best_motifs = motifs
+
+#     print(" ".join(best_motifs), best_score)
+
+
+with open("DosR.txt") as f:
+    dna = f.read().strip().splitlines()
+    t = len(dna)
+    for k in range(8,10):
+        run_randomized_motif_search(dna, k, t, 2000)
