@@ -105,15 +105,16 @@ def run_randomized_motif_search(dna, k, t, iterations):
     best_motifs, score_best_motifs = randomized_motif_search(dna, k, t)
 
     for i in range(iterations):
-        if(i % 10 == 0):
+        if(i % 50 == 0):
             print("Iteration: ", i+1)
+            print("score: ", score_best_motifs)
         cur_motifs, cur_score = randomized_motif_search(dna, k, t)
-        print(cur_score, score_best_motifs)
         if cur_score < score_best_motifs:
             best_motifs = cur_motifs
             score_best_motifs = cur_score
 
     print("Best motifs are: ", " ".join(best_motifs), " with a score of: ", score_best_motifs)
+    return best_motifs, score_best_motifs
 
 with open("week4-1.txt") as f:
     lines = f.read().strip().splitlines()
@@ -235,21 +236,21 @@ def gibbs_sampler(dna, k, t, N):
             best_score = score
     return best_motifs, score
 
-dna = [
-    "CGCCCCTCTCGGGGGTGTTCAGTAAACGGCCA", "GGGCGAGGTATGTGTAAGTGCCAAGGTGCCAG", "TAGTACCGAGACCGAAAGAAGTATACAGGCGT", "TAGATCAAGTTTCAGGTGCACGTCGGTGAACC", "AATCCACCAGCTCCACGTGCAATGTTGGCCTA"
-]
-k = 8
-t = 5
-best_motifs, best_score = gibbs_sampler(dna, k, t, 200)
-for i in range(500):
-    if(i%10 == 0):
-        print(i, "/", 500)
-    motifs, score = gibbs_sampler(dna, k, t, 200)
-    if score < best_score:
-        best_score = score
-        best_motifs = motifs
+# dna = [
+#     "CGCCCCTCTCGGGGGTGTTCAGTAAACGGCCA", "GGGCGAGGTATGTGTAAGTGCCAAGGTGCCAG", "TAGTACCGAGACCGAAAGAAGTATACAGGCGT", "TAGATCAAGTTTCAGGTGCACGTCGGTGAACC", "AATCCACCAGCTCCACGTGCAATGTTGGCCTA"
+# ]
+# k = 8
+# t = 5
+# best_motifs, best_score = gibbs_sampler(dna, k, t, 200)
+# for i in range(500):
+#     if(i%10 == 0):
+#         print(i, "/", 500)
+#     motifs, score = gibbs_sampler(dna, k, t, 200)
+#     if score < best_score:
+#         best_score = score
+#         best_motifs = motifs
 
-print(" ".join(best_motifs), best_score)
+# print(" ".join(best_motifs), best_score)
     
 # with open("week4-2.txt") as f:
 #     lines = f.read().strip().splitlines()
@@ -258,20 +259,101 @@ print(" ".join(best_motifs), best_score)
 #     iterations = int(lines[0].split(" ")[2])
 #     dna = lines[1].split(" ")
 
-#     best_motifs, best_score = gibbs_sampler(dna, k, t, 200)
-#     for i in range(500):
-#         if(i%10 == 0):
-#             print(i, "/", iterations)
-#         motifs, score = gibbs_sampler(dna, k, t, 200)
-#         if score < best_score:
-#             best_score = score
-#             best_motifs = motifs
+    # best_motifs, best_score = gibbs_sampler(dna, k, t, 200)
+    # for i in range(500):
+    #     if(i%10 == 0):
+    #         print(i, "/", iterations)
+    #     motifs, score = gibbs_sampler(dna, k, t, 200)
+    #     if score < best_score:
+    #         best_score = score
+    #         best_motifs = motifs
+
+def run_gibbs_sampler(dna, k, t, inner, outer):
+    best_motifs, best_score = gibbs_sampler(dna, k, t, inner)
+    for i in range(outer):
+        if(i%10 == 0):
+            print(i, "/", outer)
+        motifs, score = gibbs_sampler(dna, k, t, inner)
+        if score < best_score:
+            best_score = score
+            best_motifs = motifs
+    return best_motifs, best_score
 
 #     print(" ".join(best_motifs), best_score)
+def compute_profile(dna, pseudocounts=False):
+    k = len(dna[0])
+    ## pseudocounts makes sure there's at least 1 in each row so it never equals 0
+    if pseudocounts:
+        profile = {nucleotide: [1] * k for nucleotide in "ACGT"}
+        for row in dna:
+            for col, nucleotide in enumerate(row):
+                profile[nucleotide][col] += 1
+        total = len(dna) + 4
+        for nucleotide in profile:
+            profile[nucleotide] = [count / total for count in profile[nucleotide]]
+        return profile
 
+    profile = {
+        "A":[],
+        "C":[],
+        "G":[],
+        "T":[]
+    }
+
+    for col in range(len(dna[0])):
+        a = 0
+        t = 0
+        c = 0
+        g = 0
+        for row in dna:
+            if row[col] == "A": a += 1
+            if row[col] == "T": t+= 1
+            if row[col] == "C": c+= 1
+            if row[col] == "G": g+= 1
+        profile["A"].append(a/len(dna))
+        profile["T"].append(t/len(dna))
+        profile["C"].append(c/len(dna))
+        profile["G"].append(g/len(dna))
+    
+    return profile
+
+def get_consensus_string(y):
+    x = compute_profile(y)
+    ## check the highest probability in each column
+    ## columns
+    consensus_string = ""
+    for i in range(len(x["A"])):
+        ## rows
+        max_prob = 0.0
+        max_char = "A"
+        for key, value in x.items():
+            if value[i] > max_prob:
+                max_prob = value[i]
+                max_char = key
+        consensus_string += max_char
+    return consensus_string
 
 with open("DosR.txt") as f:
     dna = f.read().strip().splitlines()
     t = len(dna)
-    for k in range(8,10):
-        run_randomized_motif_search(dna, k, t, 2000)
+    random_motif_search_motifs = {}
+
+    for k in range(8,12):
+        res = run_randomized_motif_search(dna, k, t, 500)
+        random_motif_search_motifs[k] = res
+
+    gibbs_sampling_motifs = {}
+
+    for k in range(8,21):
+        res = run_gibbs_sampler(dna, k, t, 200, 300)
+        gibbs_sampling_motifs[k] = res
+
+    print("Random search results:")
+    for key,value in random_motif_search_motifs.items():
+        print(key, value[1])
+        print(get_consensus_string(value[0]))
+    
+    print("Gibbs sampler results:")
+    for key,value in gibbs_sampling_motifs.items():
+        print(key, value[1])
+        print(get_consensus_string(value[0]))
