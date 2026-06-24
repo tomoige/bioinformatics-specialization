@@ -32,3 +32,37 @@ print(genome_path(genome))
 with open("week1-2.txt") as f:
     genome = f.read().strip().split(" ")
     print(genome_path(genome))
+
+def prefix(string):
+    return string[:len(string)-1]
+
+def suffix(string):
+    return string[1:]
+
+def adjacency_list(kmers):
+    adjacency_list = {}
+    for i, kmer in enumerate(kmers):
+        suffix_ = suffix(kmer)
+        for i2, second_kmer in enumerate(kmers):
+            if i == i2:
+                continue
+            prefix_ = prefix(second_kmer)
+            if suffix_ == prefix_:
+                if kmer in adjacency_list:
+                    adjacency_list[kmer].append(second_kmer)
+                else:
+                    adjacency_list[kmer] = [second_kmer]
+    return adjacency_list
+
+kmers = ["ATGCG", "GCATG", "CATGC", "AGGCA", "GGCAT", "GGCAC"]
+
+for key,value in adjacency_list(kmers).items():
+    print(key, ":", " ".join(value))
+
+with open("week1-3.txt") as f:
+    kmers = f.read().strip().split(" ")
+    with open("week1-3-output.txt", "x") as f2:
+        for key,value in adjacency_list(kmers).items():
+            f2.write(key + " : " + " ".join(value).strip() + "\n")
+        
+
