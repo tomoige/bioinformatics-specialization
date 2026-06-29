@@ -56,13 +56,48 @@ def adjacency_list(kmers):
 
 kmers = ["ATGCG", "GCATG", "CATGC", "AGGCA", "GGCAT", "GGCAC"]
 
-for key,value in adjacency_list(kmers).items():
-    print(key, ":", " ".join(value))
+# for key,value in adjacency_list(kmers).items():
+#     print(key, ":", " ".join(value))
 
-with open("week1-3.txt") as f:
-    kmers = f.read().strip().split(" ")
-    with open("week1-3-output.txt", "x") as f2:
-        for key,value in adjacency_list(kmers).items():
-            f2.write(key + " : " + " ".join(value).strip() + "\n")
+# with open("week1-3.txt") as f:
+#     kmers = f.read().strip().split(" ")
+#     with open("week1-3-output.txt", "x") as f2:
+#         for key,value in adjacency_list(kmers).items():
+#             f2.write(key + " : " + " ".join(value).strip() + "\n")
         
+k = 4
+text = "AAGATTCTCTAAGA"
 
+def get_kmers(text, k):
+    kmers = []
+    for i in range(len(text) - k + 1):
+        kmers.append(text[i:i+k])
+    return kmers
+
+def adjacency_list_debruijn(kmers):
+    adjacency_list = {}
+    for kmer in kmers:
+        prefix_ = prefix(kmer)
+        suffix_ = suffix(kmer)
+        if prefix_ in adjacency_list:#
+            adjacency_list[prefix_].append(suffix_)
+        else:
+            adjacency_list[prefix_] = [suffix_]
+    return adjacency_list
+
+
+kmers = get_kmers(text, 4)
+res = adjacency_list_debruijn(kmers)
+print(kmers)
+for key, value in res.items():
+    print(key + " : " + str(value))
+
+with open("week1-4.txt") as f:
+    lines = f.read().strip().splitlines()
+    k = int(lines[0])
+    text = lines[1]
+    kmers = get_kmers(text, k)
+    res = adjacency_list_debruijn(kmers)
+    with open("week1-4-output.txt", "x") as f2:
+        for key,value in res.items():
+            f2.write(key + ": " + " ".join(value).strip() + "\n")
