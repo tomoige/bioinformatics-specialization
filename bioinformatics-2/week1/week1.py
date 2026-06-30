@@ -86,18 +86,31 @@ def adjacency_list_debruijn(kmers):
     return adjacency_list
 
 
-kmers = get_kmers(text, 4)
+# kmers = get_kmers(text, 4)
+# res = adjacency_list_debruijn(kmers)
+# print(kmers)
+# for key, value in res.items():
+#     print(key + " : " + str(value))
+
+# with open("week1-4.txt") as f:
+#     lines = f.read().strip().splitlines()
+#     k = int(lines[0])
+#     text = lines[1]
+#     kmers = get_kmers(text, k)
+#     res = adjacency_list_debruijn(kmers)
+#     with open("week1-4-output.txt", "x") as f2:
+#         for key,value in res.items():
+#             f2.write(key + ": " + " ".join(value).strip() + "\n")
+
+kmers = ["GAGG", "CAGG", "GGGG", "GGGA", "CAGG", "AGGG", "GGAG"]
 res = adjacency_list_debruijn(kmers)
 print(kmers)
 for key, value in res.items():
-    print(key + " : " + str(value))
+    print(key + ": " + " ".join(value))
 
-with open("week1-4.txt") as f:
-    lines = f.read().strip().splitlines()
-    k = int(lines[0])
-    text = lines[1]
-    kmers = get_kmers(text, k)
+with open("week1-5.txt") as f:
+    kmers = f.read().strip().split(" ")
     res = adjacency_list_debruijn(kmers)
-    with open("week1-4-output.txt", "x") as f2:
+    with open("week1-5-output.txt", "x") as f2:
         for key,value in res.items():
             f2.write(key + ": " + " ".join(value).strip() + "\n")
