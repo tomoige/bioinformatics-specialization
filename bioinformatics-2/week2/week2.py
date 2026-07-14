@@ -131,4 +131,70 @@ with open("week2-2.txt") as f:
     res = work_back(end, adj_list, [])
     print(res)
 
-# def get_eulerian_path(adjacency_list)
+# count all the in and out degrees of each node
+# which has one extra out is the start
+# which has one extra in in the end
+
+sample_list = {
+    0: [2],
+    1: [3],
+    2: [1],
+    3: [0, 4],
+    6: [3, 7],
+    7: [8],
+    8: [9],
+    9: [6]
+}
+
+def get_degrees(adjacency_list):
+    degree_counts = {}
+    for key, value in adjacency_list.items():
+        if key not in degree_counts: 
+            degree_counts[key] = 0
+
+        degree_counts[key] = degree_counts[key] + len(value)
+        for node in value:
+            if node not in degree_counts:
+                degree_counts[node] = 0
+            degree_counts[node] = degree_counts[node] - 1
+
+    return degree_counts
+
+degrees = get_degrees(sample_list)
+
+
+
+def get_eulerian_path(adj_list):
+    degrees = get_degrees(adj_list)
+    for key, value in degrees.items():
+        if(value > 0):
+            start = key
+        if(value < 0):
+            end = key
+    if end not in adj_list:
+        adj_list[end] = [start]
+    else:
+        adj_list[end].append(start)
+
+    print(degrees)
+    print(start, end)
+    print(adj_list)
+
+    return get_eulerian_cycle(adj_list, start)[:-1]
+
+# print(get_eulerian_path(sample_list))
+
+with open("week2-2.txt") as f:
+    lines = f.read().strip().splitlines()
+    adjacency_list = {}
+    for line in lines:
+        splitlines = line.split(":")
+        key = int(splitlines[0])
+        value = list(map(int, splitlines[1][1:].split(" ")))
+        adjacency_list[key] = value
+    print("answer: ")
+    res = get_eulerian_path(adjacency_list)
+    res_string = ""
+    for i in res:
+        res_string += str(i) + " "
+    print(res_string)
