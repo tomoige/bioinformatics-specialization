@@ -309,3 +309,15 @@ def generate_binary_strings(k):
 strings = generate_binary_strings(8)
 
 print(string_reconstruction(strings))
+
+
+def get_kmers_from_string(string, k, d=1):
+    kmers = []
+    for i in range(len(string) - (2*k) - d + 1):
+        kmers.append("(" + string[i:i+k] + "|" + string[i+k+d:i+d+2*k] + ")")
+    
+    return sorted(kmers)
+
+string = "TAATGCCATGGGATGTT"
+
+print(" ".join(get_kmers_from_string(string, 3, 2)))
