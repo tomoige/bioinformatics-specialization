@@ -321,3 +321,86 @@ def get_kmers_from_string(string, k, d=1):
 string = "TAATGCCATGGGATGTT"
 
 print(" ".join(get_kmers_from_string(string, 3, 2)))
+
+def prefix(string):
+    return string[:-1]
+
+def suffix(string):
+    return string[1:]
+
+def create_graph(strings):
+    graph = {}
+    for string in strings:
+        split = string.split("|")
+        first_prefix = prefix(split[0])
+        second_prefix = prefix(split[1])
+        complete_prefix = first_prefix + "|" + second_prefix
+        
+        first_suffix = suffix(split[0])
+        second_suffix = suffix(split[1])
+        complete_suffix = first_suffix + "|" + second_suffix
+
+        if complete_prefix not in graph:
+            graph[complete_prefix] = [complete_suffix]
+        else:
+            graph[complete_prefix].append(complete_suffix)
+    
+    return graph
+
+strings = ["GAGA|TTGA", "TCGT|GATG", "CGTG|ATGT", "TGGT|TGAG", "GTGA|TGTT", "GTGG|GTGA", "TGAG|GTTG", "GGTC|GAGA", "GTCG|AGAT"]
+
+
+def find_not_empty(matrix):
+    for key, value in matrix.items():
+        if len(value) > 0:
+            return key
+    return False
+
+def find_path(matrix):
+    path = []
+    
+    m = matrix
+    current_node = find_not_empty(m)
+    if not current_node:
+        return path, m
+    path.append(current_node)
+    next_paths = m[current_node]
+    while(len(next_paths) > 0):
+        next_path = next_paths.pop(0)
+        path.append(next_path)
+        if(next_path not in m):
+            return path, m
+        next_paths = m[next_path]
+        
+    return path, m
+
+paths = []
+graph = create_graph(strings)
+while(True):
+    path, graph = find_path(graph)
+    if len(path) == 0:
+        break;
+    paths.append(path)
+
+def concatenate_paths(paths):
+    full_path = paths.pop(0)
+    print("full_path is: ", full_path)
+    print("first item in full_path is: ", full_path[0])
+    for path in paths:
+        print("loop full path is: ", full_path)
+        first = path[0]
+        end = path[-1]
+        full_path_first = full_path[0]
+        full_path_end = full_path[-1]
+        if first == full_path_end:
+            full_path.extend(path[1:])
+        else:
+            path.extend(full_path[1:])
+            full_path = path
+    return full_path
+
+print(paths[0])
+concatenated_paths = concatenate_paths(paths)
+print(concatenated_paths)
+    
+
