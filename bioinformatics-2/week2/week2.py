@@ -402,5 +402,75 @@ def concatenate_paths(paths):
 print(paths[0])
 concatenated_paths = concatenate_paths(paths)
 print(concatenated_paths)
-    
 
+# GTGG??GTGA
+#  TGGT??TGAG
+#   GGTC??GAGA
+#    GTCG??AGAT
+#     TCGT??GATG
+#      CGTG??ATGT
+#       GTGA??TGTT
+#        TGAG??GTTG
+#         GAGA??TTGA
+
+sample = [
+    "GACC|GCGC", 
+    "ACCG|CGCC", 
+    "CCGA|GCCG", 
+    "CGAG|CCGG",
+    "GAGC|CGGA"
+]
+
+k = 4
+d = 2
+
+def get_patterns(patterns):
+    start_parts = []
+    end_parts = []
+    for string in patterns:
+        split = string.split("|")
+        start_parts.append(split[0])
+        end_parts.append(split[1])
+    initial_kmers = []
+    terminal_kmers = []
+    for i in range(len(start_parts) - 1):
+        initial_kmers.append(start_parts[i] + start_parts[i+1][-1])
+        terminal_kmers.append(end_parts[i] + end_parts[i+1][-1])
+    return initial_kmers, terminal_kmers
+
+def string_spelled_by_patterns(patterns):
+    string = ""
+    for i in range(len(patterns)):
+        if i == 0:
+            string += patterns[i]
+        else:
+            string += patterns[i][-1]
+    return string
+
+def concatenate_strings(prefixstring, suffixstring, k, d):
+    for i in range(k+d+1, len(prefixstring)):
+        checking_against = suffixstring[i - k - d]
+        if(not (prefixstring[i] == checking_against)):
+            print("wrong")
+        
+    fullstring = prefixstring + suffixstring[len(suffixstring)-(k+d):]
+    print("fullstring:", fullstring)
+    return fullstring
+
+def string_spelled_by_gapped_patterns(patterns, k, d):
+    initial_kmers, terminal_kmers = get_patterns(patterns)
+    prefixstring = string_spelled_by_patterns(initial_kmers)
+    suffixstring = string_spelled_by_patterns(terminal_kmers)
+    concatenated = concatenate_strings(prefixstring, suffixstring, k, d)
+    return concatenated
+
+print(string_spelled_by_gapped_patterns(sample, k, d))
+    
+with open("week2-4.txt") as f:
+    lines = f.read().strip().splitlines()
+    k, d = list(map(int,lines[0].split(" ")))
+    print(k, d)
+    strings = lines[1].split(" ")
+    print("strings: ", strings)
+    concatenated2 = string_spelled_by_gapped_patterns(strings, k, d)
+    print(concatenated2)
