@@ -508,3 +508,43 @@ with open("week2-5.txt") as f:
     strings2 = create_path(strings)
     concatenated2 = string_spelled_by_gapped_patterns(strings2, k, d)
     print(concatenated2)
+
+sample = ["ATG", "ATG", "TGT", "TGG", "CAT", "GGA", "GAT", "AGA"]
+
+graph = debruijn(sample)
+
+# MaximalNonBranchingPaths(Graph)
+#     Paths ← empty list
+#     for each node v in Graph
+#         if v is not a 1-in-1-out node
+#             if out(v) > 0
+#                 for each outgoing edge (v, w) from v
+#                     NonBranchingPath ← the path consisting of single edge (v, w)
+#                     while w is a 1-in-1-out node
+#                         extend NonBranchingPath by the edge (w, u) 
+#                         w ← u
+#                     add NonBranchingPath to the set Paths
+#     for each isolated cycle Cycle in Graph
+#         add Cycle to Paths
+#     return Paths
+def check_one_in_one_out(node, graph):
+    if (not (len(graph[node]) == 1)):
+        return False
+    count_in = 0;
+    for (key, value) in graph.items():
+        for val in value:
+            if val == node:
+                count_in += 1
+    if (not(count_in == 1)):
+        return False
+    
+    return True
+
+
+def mnbp(graph):
+    paths = []
+    for (key, value) in graph.items():
+        if (not(check_one_in_one_out(key, graph))):
+            print(key)
+
+mnbp(graph)
