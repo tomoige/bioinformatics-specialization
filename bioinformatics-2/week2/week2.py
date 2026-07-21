@@ -399,9 +399,24 @@ def concatenate_paths(paths):
             full_path = path
     return full_path
 
-print(paths[0])
-concatenated_paths = concatenate_paths(paths)
-print(concatenated_paths)
+def create_path(strings):
+    paths = []
+    graph = create_graph(strings)
+    while(True):
+        path, graph = find_path(graph)
+        if len(path) == 0:
+            break;
+        paths.append(path)
+    concatenated_paths = concatenate_paths(paths)
+    ## debug
+    # print(paths)
+    return concatenated_paths
+
+# print(paths[0])
+# concatenated_paths = concatenate_paths(paths)
+# print(concatenated_paths)
+concatenated_paths = create_path(strings)
+print("concatenated paths: ", concatenated_paths)
 
 # GTGG??GTGA
 #  TGGT??TGAG
@@ -436,6 +451,7 @@ def get_patterns(patterns):
     for i in range(len(start_parts) - 1):
         initial_kmers.append(start_parts[i] + start_parts[i+1][-1])
         terminal_kmers.append(end_parts[i] + end_parts[i+1][-1])
+    
     return initial_kmers, terminal_kmers
 
 def string_spelled_by_patterns(patterns):
@@ -466,11 +482,29 @@ def string_spelled_by_gapped_patterns(patterns, k, d):
 
 print(string_spelled_by_gapped_patterns(sample, k, d))
     
-with open("week2-4.txt") as f:
+# with open("week2-4.txt") as f:
+#     lines = f.read().strip().splitlines()
+#     k, d = list(map(int,lines[0].split(" ")))
+#     print(k, d)
+#     strings = lines[1].split(" ")
+#     print("strings: ", strings)
+#     concatenated2 = string_spelled_by_gapped_patterns(strings, k, d)
+#     with open("week2-4-answer.txt", "x") as f2:
+#         f2.write(concatenated2)
+
+example = [
+    "GAGA|TTGA", "TCGT|GATG", "CGTG|ATGT", "TGGT|TGAG", "GTGA|TGTT", "GTGG|GTGA", "TGAG|GTTG", "GGTC|GAGA", "GTCG|AGAT"
+]
+
+concatenated_paths = create_path(example)
+print(string_spelled_by_gapped_patterns(concatenated_paths, 4, 2))
+
+with open("week2-5.txt") as f:
     lines = f.read().strip().splitlines()
     k, d = list(map(int,lines[0].split(" ")))
     print(k, d)
     strings = lines[1].split(" ")
     print("strings: ", strings)
-    concatenated2 = string_spelled_by_gapped_patterns(strings, k, d)
+    strings2 = create_path(strings)
+    concatenated2 = string_spelled_by_gapped_patterns(strings2, k, d)
     print(concatenated2)
