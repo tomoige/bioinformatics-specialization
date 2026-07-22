@@ -499,15 +499,15 @@ example = [
 concatenated_paths = create_path(example)
 print(string_spelled_by_gapped_patterns(concatenated_paths, 4, 2))
 
-with open("week2-5.txt") as f:
-    lines = f.read().strip().splitlines()
-    k, d = list(map(int,lines[0].split(" ")))
-    print(k, d)
-    strings = lines[1].split(" ")
-    print("strings: ", strings)
-    strings2 = create_path(strings)
-    concatenated2 = string_spelled_by_gapped_patterns(strings2, k, d)
-    print(concatenated2)
+# with open("week2-5.txt") as f:
+#     lines = f.read().strip().splitlines()
+#     k, d = list(map(int,lines[0].split(" ")))
+#     print(k, d)
+#     strings = lines[1].split(" ")
+#     print("strings: ", strings)
+#     strings2 = create_path(strings)
+#     concatenated2 = string_spelled_by_gapped_patterns(strings2, k, d)
+#     print(concatenated2)
 
 sample = ["ATG", "ATG", "TGT", "TGG", "CAT", "GGA", "GAT", "AGA"]
 
@@ -528,6 +528,8 @@ graph = debruijn(sample)
 #         add Cycle to Paths
 #     return Paths
 def check_one_in_one_out(node, graph):
+    if node not in graph:
+        return False
     if (not (len(graph[node]) == 1)):
         return False
     count_in = 0;
@@ -545,6 +547,74 @@ def mnbp(graph):
     paths = []
     for (key, value) in graph.items():
         if (not(check_one_in_one_out(key, graph))):
-            print(key)
+            if len(graph[key]) > 0:
+                for out_edge in graph[key]:
+                    w = out_edge
+                    nbp = [key, out_edge]
+                    while check_one_in_one_out(w, graph):
+                        u = graph[out_edge][0]
+                        nbp.append(u)
+                        w = u
+                    paths.append(nbp)
 
-mnbp(graph)
+    allpathsconcat = []
+    for path in paths:
+        allpathsconcat.extend(path)
+    
+    for (key) in graph:
+        if(key not in allpathsconcat):
+            cycle = [key]
+            next_node = graph[key][0]
+            while (not(next_node == key)):
+                cycle.append(next_node)
+                next_node = graph[next_node][0]
+            paths.append(cycle)  
+            allpathsconcat.extend(cycle) 
+    return paths
+
+graph = {
+    1: [2],
+    2: [3],
+    3: [4, 5],
+    6: [7],
+    7: [6]
+}
+
+print(mnbp(graph))
+
+sample = ["ATG", "ATG", "TGT", "TGG", "CAT", "GGA", "GAT", "AGA"]
+
+graph = debruijn(sample)
+
+res = mnbp(graph)
+print(res)
+contigs = []
+for path in res:
+    contig = ""
+    for i in range(len(path)):
+        if i == 0:
+            contig += path[i]
+        else:
+            contig += path[i][-1]
+    contigs.append(contig)
+
+print(contigs)
+
+with open("week2-6.txt") as f:
+    sample = f.read().strip().split(" ")
+    graph = debruijn(sample)
+    res = mnbp(graph)
+    contigs = []
+    for path in res:
+        contig = ""
+        for i in range(len(path)):
+            if i == 0:
+                contig += path[i]
+            else:
+                contig += path[i][-1]
+        contigs.append(contig)
+
+    with open("week2-6-answer.txt", "x") as f2:
+        f2.write(" ".join(contigs))
+
+
