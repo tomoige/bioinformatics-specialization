@@ -552,7 +552,7 @@ def mnbp(graph):
                     w = out_edge
                     nbp = [key, out_edge]
                     while check_one_in_one_out(w, graph):
-                        u = graph[out_edge][0]
+                        u = graph[w][0]
                         nbp.append(u)
                         w = u
                     paths.append(nbp)
