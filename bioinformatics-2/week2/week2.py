@@ -600,21 +600,26 @@ for path in res:
 
 print(contigs)
 
-with open("week2-6.txt") as f:
-    sample = f.read().strip().split(" ")
-    graph = debruijn(sample)
-    res = mnbp(graph)
-    contigs = []
-    for path in res:
-        contig = ""
-        for i in range(len(path)):
-            if i == 0:
-                contig += path[i]
-            else:
-                contig += path[i][-1]
-        contigs.append(contig)
+# with open("week2-6.txt") as f:
+#     sample = f.read().strip().split(" ")
+#     graph = debruijn(sample)
+#     res = mnbp(graph)
+#     contigs = []
+#     for path in res:
+#         contig = ""
+#         for i in range(len(path)):
+#             if i == 0:
+#                 contig += path[i]
+#             else:
+#                 contig += path[i][-1]
+#         contigs.append(contig)
 
-    with open("week2-6-answer.txt", "x") as f2:
-        f2.write(" ".join(contigs))
+#     with open("week2-6-answer.txt", "x") as f2:
+#         f2.write(" ".join(contigs))
 
+with open("week2-7.txt") as f:
+    strings = f.read().strip().splitlines();
+    concatenated2 = string_spelled_by_gapped_patterns(strings, 120, 1000)
+    with open("week2-7-answer.txt", "w") as f2:
+        f2.write(concatenated2)
 
